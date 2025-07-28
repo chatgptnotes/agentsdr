@@ -16,6 +16,7 @@ from bolna_integration import BolnaAPI, get_agent_config_for_voice_agent
 from razorpay_integration import RazorpayIntegration, calculate_credits_from_amount, get_predefined_recharge_options
 from phone_provider_integration import phone_provider_manager
 from auth_routes import auth_bp
+from health_check import create_health_endpoint, AgentSDRHealthCheck
 from functools import wraps
 
 # Load environment variables from .env file
@@ -35,6 +36,79 @@ def redirect_non_www():
 
 # Register authentication blueprint
 app.register_blueprint(auth_bp)
+
+# Health Check Endpoints
+@app.route('/health', methods=['GET'])
+def health_check():
+    """Basic health check endpoint"""
+    try:
+        health_checker = AgentSDRHealthCheck()
+        report = health_checker.run_comprehensive_health_check()
+        
+        # Return appropriate HTTP status code
+        if report['overall_status'] == 'critical':
+            status_code = 503  # Service Unavailable
+        elif report['overall_status'] == 'warning':
+            status_code = 200  # OK but with warnings
+        else:
+            status_code = 200  # OK
+        
+        return jsonify(report), status_code
+    except Exception as e:
+        return jsonify({
+            'overall_status': 'critical',
+            'timestamp': datetime.now(timezone.utc).isoformat(),
+            'error': str(e),
+            'message': 'Health check failed'
+        }), 503
+
+@app.route('/health/simple', methods=['GET'])
+def simple_health_check():
+    """Simple health check for load balancers"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now(timezone.utc).isoformat(),
+        'service': 'AgentSDR',
+        'version': '2.0.0'
+    }), 200
+
+@app.route('/api/system/status', methods=['GET'])
+def system_status():
+    """Detailed system status for monitoring"""
+    try:
+        health_checker = AgentSDRHealthCheck()
+        
+        # Run specific checks based on query parameters
+        component = request.args.get('component')
+        if component:
+            component_methods = {
+                'database': health_checker.check_database_connection,
+                'ai': health_checker.check_ai_integration,
+                'modules': health_checker.check_core_modules,
+                'whatsapp': health_checker.check_whatsapp_integration,
+                'resources': health_checker.check_system_resources,
+                'config': health_checker.check_environment_config
+            }
+            
+            if component in component_methods:
+                from dataclasses import asdict
+                result = component_methods[component]()
+                return jsonify(asdict(result)), 200
+            else:
+                return jsonify({
+                    'error': f'Unknown component: {component}',
+                    'available_components': list(component_methods.keys())
+                }), 400
+        
+        # Run comprehensive check
+        report = health_checker.run_comprehensive_health_check()
+        return jsonify(report), 200
+        
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'timestamp': datetime.now(timezone.utc).isoformat()
+        }), 500
 
 # Supabase Configuration (with graceful fallback)
 SUPABASE_URL = os.getenv("SUPABASE_URL")
