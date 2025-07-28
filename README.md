@@ -1,17 +1,17 @@
-# DrM Hope SaaS Platform
+# AgentSDR - Sales Development Representative Assistant
 
-A comprehensive SaaS platform for managing organizations and AI voice agents with native Hindi/Hinglish support. Built with Flask backend and Supabase database, designed for scalability and enterprise use.
+An AI-powered sales development platform that augments Sales Development Representatives and Sales Managers with intelligent automation, lead management, and real-time insights. Built with Flask backend and Supabase database, designed for enterprise sales teams.
 
 ## 🚀 Features
 
-- **Enterprise Management**: Complete CRUD operations for organizations
-- **User Management**: Role-based access control (super_admin, admin, user)
-- **AI Voice Agents**: Integration ready for Clinivoice Hindi-native AI
-- **Real-time Dashboard**: Live statistics and activity monitoring
-- **Secure Authentication**: Supabase Auth with JWT tokens
-- **Row Level Security**: Database-level security policies
-- **Multi-tenant Architecture**: Organization-based data isolation
-- **Responsive Design**: Mobile-friendly interface
+- **Daily Briefing Engine**: Personalized morning digests with lead priorities
+- **Follow-Up Management**: Automated prospect tracking and engagement
+- **Proposal Generation**: Dynamic proposal creation with AI assistance
+- **Opportunity Intelligence**: AI-powered deal insights and recommendations
+- **Meeting Preparation**: Intelligent pre-meeting briefings and context
+- **CRM Synchronization**: Seamless integration with major CRM platforms
+- **WhatsApp Integration**: Mobile alerts and notifications
+- **Enterprise Security**: Role-based access with data isolation
 
 ## 🏗️ Architecture
 
@@ -58,7 +58,7 @@ Frontend (Vanilla JS) → Flask API → Supabase (PostgreSQL + Auth)
 
 5. **Access the platform**:
    - Open http://localhost:5000
-   - Login with: admin@drmhope.com / DrMHope@2024
+   - Login with: admin@agentsdr.com / AgentSDR@2024
 
 ## 📁 Project Structure
 
@@ -89,11 +89,13 @@ SECRET_KEY=your-secret-key
 ### Database Schema
 
 The platform uses the following main tables:
-- `enterprises` - Organization data
-- `users` - User accounts and roles
-- `voice_agents` - AI voice agent configurations
-- `call_logs` - Call history and analytics
-- `activity_logs` - System activity tracking
+- `organizations` - Sales organization data
+- `users` - Sales team members and roles
+- `leads` - Prospect and lead information
+- `opportunities` - Sales opportunities and pipeline
+- `activities` - Sales activities and follow-ups
+- `proposals` - Generated proposals and templates
+- `meetings` - Meeting preparation and notes
 
 ## 🔐 Security Features
 
@@ -127,8 +129,8 @@ The platform uses the following main tables:
 ## 🧪 Testing
 
 ### Demo Credentials
-- **Email**: admin@drmhope.com
-- **Password**: DrMHope@2024
+- **Email**: admin@agentsdr.com
+- **Password**: AgentSDR@2024
 
 ### Test Scenarios
 1. Login with demo credentials
@@ -154,28 +156,28 @@ The application is configured for deployment on Manus platform with proper stati
 
 ## 🔄 Phase Roadmap
 
-### ✅ Phase 1: Core Functionality (Complete)
-- Flask backend with basic CRUD operations
-- Frontend dashboard
-- Manus platform deployment
+### ✅ Phase 1: Foundation (Complete)
+- Flask backend with sales-focused CRUD operations
+- Sales dashboard and lead management
+- User authentication and role management
 
-### ✅ Phase 2: Supabase Integration (Complete)
-- Full Supabase database integration
-- Proper authentication with JWT
-- Row Level Security implementation
-- Flask application stability improvements
+### 🔄 Phase 2: Core SDR Features (In Progress)
+- Daily Briefing Engine implementation
+- Follow-Up Management System
+- Basic CRM synchronization
+- WhatsApp integration for notifications
 
-### 🔄 Phase 3: Clinivoice Integration (Next)
-- Hindi-native AI voice agent integration
-- Voice agent management UI
-- Call logging and analytics
-- Interactive demo widget
+### 📋 Phase 3: AI Intelligence (Planned)
+- Opportunity Intelligence Radar
+- Meeting Preparation Intelligence
+- Proposal Generation System
+- Advanced analytics and insights
 
-### 📋 Phase 4: Advanced Features (Planned)
-- Real-time updates with WebSockets
-- Advanced analytics and reporting
+### 📋 Phase 4: Enterprise Features (Planned)
+- Advanced CRM integrations
+- Team collaboration features
 - Mobile app support
-- API rate limiting and monitoring
+- Advanced reporting and analytics
 
 ## 🤝 Contributing
 
@@ -195,16 +197,15 @@ For setup issues or questions:
 
 ## 📄 License
 
-Copyright © 2024 DrM Hope Softwares. All rights reserved.
+Copyright © 2024 BETTROI. All rights reserved.
 
 ## 🙏 Acknowledgments
 
 - **Supabase** - Backend-as-a-Service platform
 - **Flask** - Python web framework
-- **Clinivoice** - AI voice technology partner
-- **Manus Platform** - Deployment infrastructure
+- **OpenAI** - AI and natural language processing
+- **WhatsApp Business API** - Mobile communication
 
 ---
 
-**Made with ❤️ by DrM Hope Softwares | Powered by Clinivoice AI**
-# bashai.com
+**Made with ❤️ by BETTROI | Transforming Sales Through Intelligent Automation**

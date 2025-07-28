@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-BhashAI SaaS Platform - A multi-tenant SaaS platform for managing organizations and AI voice agents with native Hindi/Hinglish support. Built with Flask backend and Supabase database.
+AgentSDR - An AI-powered Sales Development Representative assistant platform designed to augment sales teams with intelligent automation, lead management, and real-time insights. Built with Flask backend and Supabase database.
 
 ## Common Development Commands
 
@@ -52,24 +52,30 @@ python test_google_oauth.py     # Test OAuth flow
 
 ### Database Hierarchy
 ```
-Enterprise (Trial Owner)
-├── Organizations (e.g., "TechCorp", "RetailPlus")
-│   ├── Channels (Inbound Calls, Outbound Calls, WhatsApp)
-│   │   ├── Voice Agents (AI assistants)
-│   │   │   └── Contacts (Agent-specific contacts)
+Organization (Sales Team)
+├── Users (Sales Reps, Managers)
+├── Leads (Prospects and potential customers)
+├── Opportunities (Active sales pipeline)
+├── Activities (Follow-ups, calls, meetings)
+├── Proposals (Generated sales proposals)
+└── Reports (Performance analytics)
 ```
 
 ### Key API Endpoints
 - Auth: `/auth/*` - Login, signup, user management
-- Enterprises: `/api/enterprises/*` - Organization CRUD
-- Voice Agents: `/api/voice-agents/*` - AI agent management
-- Contacts: `/api/contacts/*` - Contact management
-- Organizations: `/api/organizations/*` - Multi-org support
-- Channels: `/api/channels/*` - Communication channels
+- Organizations: `/api/organizations/*` - Sales team management
+- Leads: `/api/leads/*` - Lead and prospect management
+- Opportunities: `/api/opportunities/*` - Sales pipeline management
+- Activities: `/api/activities/*` - Follow-up and task management
+- Proposals: `/api/proposals/*` - Proposal generation and management
+- Briefings: `/api/briefings/*` - Daily briefing and insights
+- CRM: `/api/crm/*` - CRM integration endpoints
 
 ### Middleware Components
 - `auth.py` - Local authentication system
-- `trial_middleware.py` - Trial account limitations
+- `sales_middleware.py` - Sales team access controls
+- `briefing_engine.py` - Daily briefing generation
+- `crm_sync.py` - CRM synchronization handlers
 
 ### Environment Variables Required
 ```
@@ -81,20 +87,23 @@ SECRET_KEY=your-secret-key
 ```
 
 ### Current Implementation Status
-- Phase 1: Core Functionality ✅
-- Phase 2: Supabase Integration ✅
-- Phase 3: Advanced AI Integration (In Progress)
-- Using local SQLite authentication for all users
+- Phase 1: Foundation and Basic Sales Management ✅
+- Phase 2: SDR Core Features (In Progress)
+- Phase 3: AI Intelligence and Automation (Planned)
+- Phase 4: Enterprise Features and Integrations (Planned)
+- Using local SQLite authentication for sales teams
 
 ### Database Schema
 Apply schema using Supabase SQL Editor:
 - `supabase_schema.sql` - Main database schema
-- `updated_schema.sql` - Updated enterprise structure
-- `create_contact_tables.sql` - Contact management tables
+- `sales_schema.sql` - Sales-specific tables and structures
+- `briefing_schema.sql` - Daily briefing and analytics tables
+- `crm_integration_schema.sql` - CRM synchronization tables
 
 ### Development Notes
-- Always test with admin@bhashai.com (superadmin account)
+- Always test with admin@agentsdr.com (superadmin account)
 - Row Level Security (RLS) is enabled - ensure proper auth
 - Frontend uses vanilla JavaScript - no framework or bundling
 - API returns JSON responses with proper error handling
-- Trial middleware limits features for trial accounts
+- Sales middleware controls access to sensitive lead data
+- WhatsApp integration requires proper Business API setup

@@ -1,8 +1,43 @@
+# Core Flask Framework
 Flask==2.3.3
 Flask-CORS==4.0.0
 python-dotenv==1.0.0
 requests==2.31.0
 gunicorn==21.2.0
+
+# Authentication and Security
 PyJWT==2.8.0
 cryptography==41.0.7
 bcrypt==4.0.1
+
+# AI and Natural Language Processing
+openai==1.3.7
+anthropic==0.8.1
+
+# Data Processing and Analysis
+pandas==2.1.4
+numpy==1.24.3
+scipy==1.11.4
+
+# Email and Communication
+email-validator==2.1.0
+sendgrid==6.10.0
+
+# WhatsApp Business API
+twilio==8.11.1
+
+# CRM Integration Libraries
+salesforce-api==1.0.0
+hubspot-api-client==8.6.0
+
+# Task Scheduling and Background Jobs
+celery==5.3.4
+redis==5.0.1
+
+# Date and Time Processing
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Utilities
+markdown==3.5.1
+jinja2==3.1.2
