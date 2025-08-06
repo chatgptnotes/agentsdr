@@ -1,7 +1,8 @@
-# Environment variables
+# Environment variables (IMPORTANT: Never commit real API keys)
 .env
 .env.local
 .env.production
+.env.development
 .env.backup*
 .env.save
 .env.*
