@@ -1,5 +1,5 @@
 # Core Flask Framework
-Flask==2.3.3
+Flask==3.0.0
 Flask-CORS==4.0.0
 python-dotenv==1.0.0
 requests==2.31.0
@@ -7,7 +7,7 @@ gunicorn==21.2.0
 
 # Authentication and Security
 PyJWT==2.8.0
-cryptography==41.0.7
+cryptography>=41.0.0
 bcrypt==4.0.1
 
 # AI and Natural Language Processing
@@ -17,15 +17,15 @@ openai>=1.0.0
 email-validator==2.1.0
 
 # WhatsApp Business API
-twilio
+twilio>=8.0.0
 
 # Date and Time Processing
 python-dateutil==2.8.2
-pytz==2023.3
+pytz>=2023.3
 
 # Utilities
-markdown
-jinja2==3.1.2
+markdown>=3.4.0
+jinja2>=3.1.0
 
 # Health monitoring
-psutil
+psutil>=5.9.0
