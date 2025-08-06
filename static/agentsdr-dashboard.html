@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentSDR Dashboard - Sales Development Representative Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #7c3aed;
+            --accent: #059669;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #dc2626;
+            --dark: #1f2937;
+            --light: #f8fafc;
+            --sales-blue: #0ea5e9;
+            --sales-green: #22c55e;
+            --sales-purple: #8b5cf6;
+            --sales-orange: #f97316;
+            --gradient-sales: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gradient-sales);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .glass {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+        }
+
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .sales-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .sales-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-item {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            margin: 4px 0;
+        }
+
+        .nav-item:hover {
+            background: rgba(37, 99, 235, 0.1);
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: var(--gradient-sales);
+            color: white;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-new { background: rgba(59, 130, 246, 0.1); color: #1d4ed8; }
+        .status-contacted { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+        .status-qualified { background: rgba(16, 185, 129, 0.1); color: #047857; }
+        .status-converted { background: rgba(34, 197, 94, 0.1); color: #15803d; }
+        .status-lost { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+
+        .priority-high { border-left: 4px solid #dc2626; }
+        .priority-medium { border-left: 4px solid #f59e0b; }
+        .priority-low { border-left: 4px solid #10b981; }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar w-64 p-6 fixed h-full z-10">
+            <div class="mb-8">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-robot text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800">AgentSDR</h1>
+                        <p class="text-sm text-gray-600">Sales Assistant</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="space-y-2">
+                <a href="#dashboard" class="nav-item active flex items-center space-x-3 px-4 py-3 text-gray-700">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#leads" class="nav-item flex items-center space-x-3 px-4 py-3 text-gray-700">
+                    <i class="fas fa-users"></i>
+                    <span>Leads</span>
+                </a>
+                <a href="#opportunities" class="nav-item flex items-center space-x-3 px-4 py-3 text-gray-700">
+                    <i class="fas fa-bullseye"></i>
+                    <span>Opportunities</span>
+                </a>
+                <a href="#activities" class="nav-item flex items-center space-x-3 px-4 py-3 text-gray-700">
+                    <i class="fas fa-tasks"></i>
+                    <span>Activities</span>
+                </a>
+                <a href="#proposals" class="nav-item flex items-center space-x-3 px-4 py-3 text-gray-700">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Proposals</span>
+                </a>
+                <a href="#briefings" class="nav-item flex items-center space-x-3 px-4 py-3 text-gray-700">
+                    <i class="fas fa-newspaper"></i>
+                    <span>Daily Briefing</span>
+                </a>
+                <a href="#analytics" class="nav-item flex items-center space-x-3 px-4 py-3 text-gray-700">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </a>
+                <div class="border-t border-gray-200 my-4"></div>
+                <a href="#integrations" class="nav-item flex items-center space-x-3 px-4 py-3 text-gray-700">
+                    <i class="fas fa-plug"></i>
+                    <span>CRM Integration</span>
+                </a>
+                <a href="#settings" class="nav-item flex items-center space-x-3 px-4 py-3 text-gray-700">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 ml-64">
+            <!-- Header -->
+            <div class="header p-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Good morning, Sales Rep!</h2>
+                        <p class="text-gray-600">Here's your sales performance overview</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <input type="text" placeholder="Search leads, opportunities..." 
+                                   class="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                        <button class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-xl hover:shadow-lg transition-all">
+                            <i class="fas fa-plus mr-2"></i>New Lead
+                        </button>
+                        <div class="relative">
+                            <button class="p-2 bg-white rounded-xl border border-gray-200 hover:bg-gray-50">
+                                <i class="fas fa-bell text-gray-600"></i>
+                            </button>
+                            <div class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">3</div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <img src="https://ui-avatars.com/api/?name=Sales+Rep&background=2563eb&color=fff" 
+                                 class="w-8 h-8 rounded-full">
+                            <span class="text-gray-700 font-medium">Sales Rep</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="p-6 space-y-6">
+                <!-- Key Metrics Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Total Leads -->
+                    <div class="metric-card">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Leads</p>
+                                <p class="text-2xl font-bold text-gray-800" id="total-leads">124</p>
+                                <p class="text-sm text-green-600">+12% from last week</p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-users text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Qualified Leads -->
+                    <div class="metric-card">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Qualified Leads</p>
+                                <p class="text-2xl font-bold text-gray-800" id="qualified-leads">47</p>
+                                <p class="text-sm text-green-600">+8% from last week</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Opportunities -->
+                    <div class="metric-card">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Active Opportunities</p>
+                                <p class="text-2xl font-bold text-gray-800" id="active-opportunities">23</p>
+                                <p class="text-sm text-orange-600">-2% from last week</p>
+                            </div>
+                            <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-bullseye text-orange-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Revenue Pipeline -->
+                    <div class="metric-card">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Pipeline Value</p>
+                                <p class="text-2xl font-bold text-gray-800" id="pipeline-value">$347K</p>
+                                <p class="text-sm text-green-600">+24% from last week</p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-dollar-sign text-purple-600 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Daily Briefing -->
+                    <div class="lg:col-span-2">
+                        <div class="sales-card p-6">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-lg font-semibold text-gray-800">Today's Briefing</h3>
+                                <button class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                                    View Full Briefing <i class="fas fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                                    <h4 class="font-medium text-gray-800 mb-2">Priority Follow-ups (3)</h4>
+                                    <p class="text-sm text-gray-600">Tech Corp - Demo scheduled for 2:00 PM</p>
+                                    <p class="text-sm text-gray-600">StartupX - Proposal follow-up overdue</p>
+                                    <p class="text-sm text-gray-600">Enterprise Inc - Decision maker meeting tomorrow</p>
+                                </div>
+                                
+                                <div class="p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
+                                    <h4 class="font-medium text-gray-800 mb-2">New Qualified Leads (2)</h4>
+                                    <p class="text-sm text-gray-600">FinTech Solutions - Inbound from website</p>
+                                    <p class="text-sm text-gray-600">RetailPlus - LinkedIn referral</p>
+                                </div>
+                                
+                                <div class="p-4 bg-orange-50 rounded-lg border-l-4 border-orange-500">
+                                    <h4 class="font-medium text-gray-800 mb-2">Opportunities at Risk (1)</h4>
+                                    <p class="text-sm text-gray-600">MegaCorp - No response for 2 weeks, competitor mentioned</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions & Insights -->
+                    <div class="space-y-6">
+                        <!-- Quick Actions -->
+                        <div class="sales-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
+                            <div class="space-y-3">
+                                <button class="w-full flex items-center space-x-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                                    <i class="fas fa-plus text-blue-600"></i>
+                                    <span class="text-sm font-medium text-gray-700">Add New Lead</span>
+                                </button>
+                                <button class="w-full flex items-center space-x-3 p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
+                                    <i class="fas fa-file-alt text-green-600"></i>
+                                    <span class="text-sm font-medium text-gray-700">Generate Proposal</span>
+                                </button>
+                                <button class="w-full flex items-center space-x-3 p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
+                                    <i class="fas fa-calendar text-purple-600"></i>
+                                    <span class="text-sm font-medium text-gray-700">Schedule Meeting</span>
+                                </button>
+                                <button class="w-full flex items-center space-x-3 p-3 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors">
+                                    <i class="fas fa-sync text-orange-600"></i>
+                                    <span class="text-sm font-medium text-gray-700">Sync CRM</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- AI Insights -->
+                        <div class="sales-card p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">AI Insights</h3>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+                                    <div class="flex items-start space-x-2">
+                                        <i class="fas fa-lightbulb text-yellow-500 mt-1"></i>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-800">Opportunity Alert</p>
+                                            <p class="text-xs text-gray-600">TechCorp mentioned budget approval - perfect time to send proposal</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg">
+                                    <div class="flex items-start space-x-2">
+                                        <i class="fas fa-chart-line text-green-500 mt-1"></i>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-800">Performance Tip</p>
+                                            <p class="text-xs text-gray-600">Your response time improved 40% this week. Keep it up!</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities & Pipeline -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Recent Activities -->
+                    <div class="sales-card p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">Recent Activities</h3>
+                            <a href="#activities" class="text-blue-600 hover:text-blue-700 text-sm font-medium">View All</a>
+                        </div>
+                        
+                        <div class="space-y-4" id="recent-activities">
+                            <!-- Activities will be loaded here -->
+                            <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-phone text-blue-600 text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-800">Called TechCorp - John Smith</p>
+                                    <p class="text-xs text-gray-600">Discussed requirements, sending proposal today</p>
+                                    <p class="text-xs text-gray-500">2 hours ago</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-envelope text-green-600 text-sm"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-800">Email sent to StartupX</p>
+                                    <p class="text-xs text-gray-600">Follow-up on last week's demo</p>
+                                    <p class="text-xs text-gray-500">4 hours ago</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pipeline Overview -->
+                    <div class="sales-card p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">Pipeline Overview</h3>
+                            <a href="#opportunities" class="text-blue-600 hover:text-blue-700 text-sm font-medium">View Pipeline</a>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                    <span class="text-sm font-medium text-gray-700">Prospecting</span>
+                                </div>
+                                <span class="text-sm font-bold text-gray-800">8 deals</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                    <span class="text-sm font-medium text-gray-700">Qualification</span>
+                                </div>
+                                <span class="text-sm font-bold text-gray-800">5 deals</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-3 h-3 bg-orange-500 rounded-full"></div>
+                                    <span class="text-sm font-medium text-gray-700">Proposal</span>
+                                </div>
+                                <span class="text-sm font-bold text-gray-800">6 deals</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                    <span class="text-sm font-medium text-gray-700">Negotiation</span>
+                                </div>
+                                <span class="text-sm font-bold text-gray-800">4 deals</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Total Pipeline</span>
+                                <span class="font-bold text-gray-800">$347,500</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize AgentSDR Dashboard
+        class AgentSDRDashboard {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.loadDashboardData();
+                this.setupAutoRefresh();
+            }
+
+            setupEventListeners() {
+                // Navigation handling
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.handleNavigation(item);
+                    });
+                });
+
+                // Search functionality
+                const searchInput = document.querySelector('input[placeholder*="Search"]');
+                if (searchInput) {
+                    searchInput.addEventListener('input', (e) => {
+                        this.handleSearch(e.target.value);
+                    });
+                }
+            }
+
+            handleNavigation(clickedItem) {
+                // Remove active class from all items
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Add active class to clicked item
+                clickedItem.classList.add('active');
+                
+                // Handle routing logic here
+                const href = clickedItem.getAttribute('href');
+                console.log('Navigating to:', href);
+            }
+
+            loadDashboardData() {
+                // Simulate loading dashboard data
+                this.updateMetrics();
+                this.loadRecentActivities();
+                this.updateBriefing();
+            }
+
+            updateMetrics() {
+                // Simulate real-time metric updates
+                const metrics = {
+                    totalLeads: Math.floor(Math.random() * 50) + 100,
+                    qualifiedLeads: Math.floor(Math.random() * 20) + 30,
+                    activeOpportunities: Math.floor(Math.random() * 10) + 15,
+                    pipelineValue: Math.floor(Math.random() * 100) + 250
+                };
+
+                document.getElementById('total-leads').textContent = metrics.totalLeads;
+                document.getElementById('qualified-leads').textContent = metrics.qualifiedLeads;
+                document.getElementById('active-opportunities').textContent = metrics.activeOpportunities;
+                document.getElementById('pipeline-value').textContent = `$${metrics.pipelineValue}K`;
+            }
+
+            loadRecentActivities() {
+                // Load recent activities from API
+                console.log('Loading recent activities...');
+            }
+
+            updateBriefing() {
+                // Update daily briefing content
+                console.log('Updating daily briefing...');
+            }
+
+            handleSearch(query) {
+                if (query.length > 2) {
+                    console.log('Searching for:', query);
+                    // Implement search functionality
+                }
+            }
+
+            setupAutoRefresh() {
+                // Refresh dashboard data every 5 minutes
+                setInterval(() => {
+                    this.updateMetrics();
+                }, 5 * 60 * 1000);
+            }
+        }
+
+        // Initialize dashboard when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const dashboard = new AgentSDRDashboard();
+            
+            // Add loading animation
+            document.querySelectorAll('.metric-card, .sales-card').forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.classList.add('animate-slide-in');
+            });
+        });
+
+        // WhatsApp Integration Simulation
+        function sendWhatsAppBriefing() {
+            console.log('Sending WhatsApp briefing...');
+            // Implement WhatsApp Business API integration
+        }
+
+        // CRM Sync Simulation
+        function syncCRM() {
+            console.log('Syncing with CRM...');
+            // Implement CRM synchronization
+        }
+    </script>
+</body>
+</html>
